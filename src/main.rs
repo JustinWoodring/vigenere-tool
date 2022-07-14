@@ -150,28 +150,30 @@ fn vigenere_encode(input: &str, key: &str) -> String {
     for my_char in input.chars() {
         let mut output_char = my_char;
         output_char = output_char.to_ascii_lowercase();
-        let mut next_char = key_iter.next();
-        if next_char.is_none() {
-            key_iter = key.chars();
-            next_char = key_iter.next();
-        }
+        if output_char.is_ascii_alphabetic() {
+            let mut next_char = key_iter.next();
+            if next_char.is_none() {
+                key_iter = key.chars();
+                next_char = key_iter.next();
+            }
 
-        match next_char {
-            Some(key_char) => {
-                if key_char.is_ascii_alphabetic() && my_char.is_ascii_alphabetic() {
-                    let lower_case_key_char = key_char.to_ascii_lowercase();
-                    let shift = (lower_case_key_char as u8) - ('a' as u8);
-                    if (output_char as u8 + shift) > ('z' as u8) {
-                        output_char =
-                            (('a' as u8) + ((output_char as u8 + shift) - 'z' as u8)) as char;
-                    } else {
-                        output_char = (output_char as u8 + shift) as char;
+            match next_char {
+                Some(key_char) => {
+                    if key_char.is_ascii_alphabetic() && my_char.is_ascii_alphabetic() {
+                        let lower_case_key_char = key_char.to_ascii_lowercase();
+                        let shift = (lower_case_key_char as u8) - ('a' as u8);
+                        if (output_char as u8 + shift) > ('z' as u8) {
+                            //Subtract the extra one as transition from 'z' to 'a'
+                            output_char = (('a' as u8) + ((output_char as u8 + shift) - 'z' as u8)
+                                - 1) as char;
+                        } else {
+                            output_char = (output_char as u8 + shift) as char;
+                        }
                     }
                 }
+                None => {}
             }
-            None => {}
         }
-
         if my_char.is_uppercase() {
             output_char = output_char.to_ascii_uppercase();
         }
@@ -188,29 +190,31 @@ fn vigenere_decode(input: &str, key: &str) -> String {
     for my_char in input.chars() {
         let mut output_char = my_char;
         output_char = output_char.to_ascii_lowercase();
-        let mut next_char = key_iter.next();
-        if next_char.is_none() {
-            key_iter = key.chars();
-            next_char = key_iter.next();
-        }
+        if output_char.is_ascii_alphabetic() {
+            let mut next_char = key_iter.next();
+            if next_char.is_none() {
+                key_iter = key.chars();
+                next_char = key_iter.next();
+            }
 
-        match next_char {
-            Some(key_char) => {
-                if key_char.is_ascii_alphabetic() && my_char.is_ascii_alphabetic() {
-                    let lower_case_key_char = key_char.to_ascii_lowercase();
-                    let shift = (lower_case_key_char as u8) - ('a' as u8);
-                    if (output_char as u8 as i32 - shift as i32) < ('a' as u8 as i32) {
-                        output_char = (('z' as u8 as i32)
-                            - (('a' as u8 as i32) - (output_char as u8 as i32 - shift as i32)))
-                            as u8 as char;
-                    } else {
-                        output_char = (output_char as u8 - shift) as char;
+            match next_char {
+                Some(key_char) => {
+                    if key_char.is_ascii_alphabetic() && my_char.is_ascii_alphabetic() {
+                        let lower_case_key_char = key_char.to_ascii_lowercase();
+                        let shift = (lower_case_key_char as u8) - ('a' as u8);
+                        if (output_char as u8 as i32 - shift as i32) < ('a' as u8 as i32) {
+                            //Add the extra one for transition from 'a' to 'z'
+                            output_char = (('z' as u8 as i32)
+                                - (('a' as u8 as i32) - (output_char as u8 as i32 - shift as i32))
+                                + 1) as u8 as char;
+                        } else {
+                            output_char = (output_char as u8 - shift) as char;
+                        }
                     }
                 }
+                None => {}
             }
-            None => {}
         }
-
         if my_char.is_uppercase() {
             output_char = output_char.to_ascii_uppercase();
         }
